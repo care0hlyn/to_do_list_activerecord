@@ -1,5 +1,6 @@
 require 'active_record'
 require './lib/task'
+require './lib/list'
 
 database_configuration = YAML::load(File.open('./db/config.yml'))
 development_configuration = database_configuration["development"]
@@ -19,6 +20,8 @@ def menu
     case choice
     when 'a'
       add
+    when 'd'
+      mark_done
     when 'l'
       list
     when 'e'
@@ -39,8 +42,16 @@ end
 
 def list
   puts "Here is everything you need to do:"
-  tasks = Task.all
+  tasks = Task.not_done
   tasks.each { |task| puts task.name }
+end
+
+def mark_done
+  puts "Which of these tasks would you like to mark as done?"
+  Task.not_done.each { |task| puts task.name }
+  done_task_name = gets.chomp
+  done_task = Task.where(:name => done_task_name).first
+  done_task.update_attributes(:done => true)
 end
 
 welcome
